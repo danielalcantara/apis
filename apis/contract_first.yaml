@@ -1,0 +1,223 @@
+---
+openapi: 3.0.0
+info:
+  title: Customer Microservice
+  version: 1.0.0
+servers:
+- url: http://ftd.com.br/v1
+paths:
+  /customer:
+    get:
+      tags:
+      - customer
+      parameters:
+      - name: limit
+        description: How many items to return at one time (max 100)
+        schema:
+          format: int32
+          type: integer
+        in: query
+        required: false
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListCustomerResponse'
+          description: Customer list
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: unexpected error
+      operationId: listCustomer
+      summary: List all customers
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerRequest'
+      tags:
+      - customer
+      responses:
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+          description: Default message
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateCustomerResponse'
+          description: Customer successfully created
+        "204":
+          description: Customer successfully created
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: unexpected error
+      operationId: createCustomer
+      summary: Create new customer
+  /customer/{customerId}:
+    get:
+      tags:
+      - customer
+      parameters:
+      - name: customerId
+        description: Customer id
+        schema:
+          format: uuid
+          type: string
+        in: path
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerResponse'
+          description: Expected response to a valid request
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: unexpected error
+      operationId: getCustomerById
+      summary: Customer data
+    put:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerRequest'
+      tags:
+      - customer
+      parameters:
+      - name: customerId
+        description: Customer ID to be updated
+        schema:
+          format: uuid
+          type: string
+        in: path
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+          description: Customer successfully updated
+        "204":
+          description: Customer updated successfuly
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: unexpected error
+      operationId: updateCustomer
+      summary: Update customer
+    delete:
+      tags:
+      - customer
+      parameters:
+      - name: customerId
+        description: Customer id
+        schema:
+          format: uuid
+          type: string
+        in: path
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+          description: Customer successfully deleted
+        "202":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+          description: Customer exclusion is in process
+        "204":
+          description: Customer successfully deleted
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: unexpected error
+      operationId: deleteCustomerById
+      summary: Delete a customer
+components:
+  schemas:
+    CustomerResponse:
+      required:
+      - id
+      - name
+      - idade
+      - dataNascimento
+      properties:
+        id:
+          format: uuid
+          type: string
+        nome:
+          type: string
+        idade:
+          type: integer
+        dataNascimento:
+          format: date
+          type: string
+          example: 2020-01-01
+    ListCustomerResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/CustomerResponse'
+    CreateCustomerResponse:
+      properties:
+        customerId:
+          format: uuid
+          type: string
+    CustomerRequest:
+      required:
+      - name
+      - idade
+      - dataNascimento
+      properties:
+        nome:
+          type: string
+        idade:
+          type: integer
+        dataNascimento:
+          format: date
+          type: string
+          example: 2020-01-01
+    MessageResponse:
+      required:
+      - code
+      - message
+      properties:
+        code:
+          format: int32
+          type: integer
+        message:
+          type: string
+    Error:
+      required:
+      - code
+      - message
+      properties:
+        code:
+          format: int32
+          type: integer
+        message:
+          type: string
